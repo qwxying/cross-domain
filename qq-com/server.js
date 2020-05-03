@@ -39,6 +39,21 @@ var server = http.createServer(function (request, response) {
     response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:9999");
     response.write(fs.readFileSync("./public/friends.json"));
     response.end();
+  } else if (path === "/friends.js") {
+    if (request.headers["referer"].indexOf("http://127.0.0.1:9999") === 0) {
+      response.statusCode = 200;
+      response.setHeader("Content-Type", "text/javascript;charset=utf-8");
+      const string = `window['{{xxx}}']({{data}})`;
+      const data = fs.readFileSync("./public/friends.json").toString();
+      const string2 = string
+        .replace("{{data}}", data)
+        .replace("{{xxx}}", query.callback);
+      response.write(string2);
+      response.end();
+    } else {
+      response.statusCode = 404;
+      response.end();
+    }
   } else {
     response.statusCode = 404;
     response.setHeader("Content-Type", "text/html;charset=utf-8");
